@@ -1,12 +1,22 @@
 """
 梅花易数的多种取卦方式
 """
+
+import os
+import sys
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+# print(root_path)
+sys.path.insert(0, root_path)
+
+
+print(sys.path)
 import random
 import datetime
 import hashlib
-from .yao import Yao
-from .bagua import Hexagram
-from core import calculate_hexagram
+from src.meihua.yao import Yao
+from src.meihua.bagua import Hexagram
+from src.meihua.core import calculate_hexagram
+
 class DivinationMethods:
     """梅花易数的取卦方法集合"""
     
@@ -252,7 +262,137 @@ class DivinationMethods:
         print(f"基于哈希取卦：{text[:20]}...")
         return yao_list
 
-if __name__ == "__main__":
-    # 例如使用时间取卦
-    yao_list = DivinationMethods.time_based_divination()
+def test_divination_method(method_name, method_func, params=None):
+    """
+    测试单个取卦方法
+    
+    :param method_name: 取卦方法名称
+    :param method_func: 取卦方法函数
+    :param params: 传递给取卦方法的参数
+    """
+    print(f"\n【{method_name}】")
+    
+    # 调用取卦方法
+    if params is not None:
+        param_display = f"{params}"
+        yao_list = method_func(params)
+        print(f"参数: {param_display}")
+    else:
+        yao_list = method_func()
+    
+    # 计算卦象
     hexagram = calculate_hexagram(yao_list)
+    
+    # 显示卦象信息
+    print(f"卦象: {hexagram.name}")
+    print(f"卦辞: {hexagram.text}")
+    print(f"解释: {hexagram.explanation[:50]}..." if len(hexagram.explanation) > 50 else f"解释: {hexagram.explanation}")
+    
+    return yao_list, hexagram
+
+def display_yao_details(yao_list):
+    """
+    显示爻的详细信息
+    
+    :param yao_list: 六爻列表
+    """
+    print("\n【爻的详细信息】")
+    yao_positions = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"]
+    for i, yao in enumerate(yao_list):
+        yao_type = "阳爻" if yao.value == Yao.YANG else "阴爻"
+        state = "动爻" if yao.state == Yao.DYNAMIC else "静爻"
+        print(f"{yao_positions[i]}: {yao} - {yao_type}({state})")
+
+def save_test_result(method_name, hexagram, yao_list, params=None):
+    """
+    将测试结果保存为Markdown文件
+    
+    :param method_name: 测试方法名称
+    :param hexagram: 卦象结果
+    :param yao_list: 六爻列表
+    :param params: 测试参数
+    """
+    import os
+    from datetime import datetime
+    
+    # 创建以当前日期命名的文件夹
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    results_dir = os.path.join(root_path, "divination_results", current_date)
+    os.makedirs(results_dir, exist_ok=True)
+    
+    # 生成带时间戳的文件名
+    timestamp = datetime.now().strftime("%H-%M-%S")
+    filename = f"{timestamp}_{method_name}.md"
+    filepath = os.path.join(results_dir, filename)
+    
+    # 准备Markdown内容
+    yao_positions = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"]
+    
+    content = f"""# {method_name} 测试结果
+*测试时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}*
+
+## 测试参数
+{f'`{params}`' if params is not None else '无参数'}
+
+## 卦象结果
+- **卦名**: {hexagram.name}
+- **卦辞**: {hexagram.text}
+
+## 六爻
+"""
+    
+    # 添加六爻信息
+    for i, yao in enumerate(yao_list):
+        yao_type = "阳爻" if yao.value == Yao.YANG else "阴爻"
+        state = "动爻" if yao.state == Yao.DYNAMIC else "静爻"
+        content += f"- {yao_positions[i]}: {yao} - {yao_type}({state})\n"
+    
+    # 添加详细解释
+    content += f"""
+## 完整解释
+{hexagram.explanation}
+"""
+    
+    # 写入文件
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(content)
+    
+    print(f"测试结果已保存到: {filepath}")
+
+def run_all_tests():
+    """
+    运行所有取卦方法的测试，并将结果保存为Markdown文件
+    """
+    print("=" * 60)
+    print("梅花易数取卦方法测试")
+    print("=" * 60)
+    
+    # 1. 时间取卦
+    yao_list, hexagram = test_divination_method("时间取卦", DivinationMethods.time_based_divination)
+    display_yao_details(yao_list)
+    save_test_result("时间取卦", hexagram, yao_list)
+    
+    # 2. 事件取卦
+    event = "今天突然放晴"
+    yao_list, hexagram = test_divination_method("事件取卦", DivinationMethods.event_based_divination, event)
+    save_test_result("事件取卦", hexagram, yao_list, event)
+    
+    # 3. 数字取卦
+    number = 374852
+    yao_list, hexagram = test_divination_method("数字取卦", DivinationMethods.number_based_divination, number)
+    save_test_result("数字取卦", hexagram, yao_list, number)
+    
+    # 4. 汉字取卦
+    character = "落"
+    yao_list, hexagram = test_divination_method("测字取卦", DivinationMethods.character_based_divination, character)
+    save_test_result("测字取卦", hexagram, yao_list, character)
+    
+    # 5. 哈希取卦
+    text = "长河落日圆"
+    yao_list, hexagram = test_divination_method("哈希取卦", DivinationMethods.hash_based_divination, text)
+    display_yao_details(yao_list)
+    save_test_result("哈希取卦", hexagram, yao_list, text)
+    
+    print("\n所有测试已完成，结果已保存到对应日期文件夹中")
+if __name__ == "__main__":
+    run_all_tests()
