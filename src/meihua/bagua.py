@@ -1,11 +1,7 @@
 """
 八卦与六十四卦的定义
 """
-import os
-import sys
-root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-print(root_path)
-sys.path.append(root_path)
+
 
 class Hexagram:
     """六十四卦的定义与属性"""
@@ -354,7 +350,7 @@ class Hexagram:
         """
         self.upper = upper_trigram
         self.lower = lower_trigram
-        self.key = upper_trigram + lower_trigram if upper_trigram != lower_trigram else upper_trigram
+        self.key = upper_trigram + lower_trigram  # 总是连接两个卦名
         
         # 获取卦象信息
         hexagram_info = self.HEXAGRAMS.get(self.key, {"name": "未知卦象", "text": "", "explanation": ""})
@@ -368,9 +364,9 @@ class Hexagram:
         if len(yao_list) != 6:
             raise ValueError("爻列表必须包含6个爻")
         
-        # 解析上卦和下卦
-        upper_values = [yao.value for yao in yao_list[0:3]]
-        lower_values = [yao.value for yao in yao_list[3:6]]
+        # 解析上卦和下卦（下卦为初爻到三爻，上卦为四爻到六爻）
+        lower_values = [yao.value for yao in yao_list[0:3]]
+        upper_values = [yao.value for yao in yao_list[3:6]]
         
         # 查找对应的八卦名称
         upper_trigram = None

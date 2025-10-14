@@ -1,4 +1,27 @@
-numpy
-pandas
-matplotlib
-pytest
+# 梅花易数占卜系统依赖包
+
+# Web框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# 数据处理
+python-multipart==0.0.6
+aiofiles==23.2.1
+
+# 日期时间处理（如果需要农历转换）
+sxtwl==1.1.4
+
+# 数据存储（可选）
+sqlalchemy==2.0.23
+databases[sqlite]==0.8.0
+
+# 开发工具
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+flake8==6.1.0
+
+# 部署相关
+gunicorn==21.2.0
+python-dotenv==1.0.0

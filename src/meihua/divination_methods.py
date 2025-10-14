@@ -2,20 +2,12 @@
 梅花易数的多种取卦方式
 """
 
-import os
-import sys
-root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-# print(root_path)
-sys.path.insert(0, root_path)
-
-
-print(sys.path)
 import random
 import datetime
 import hashlib
-from src.meihua.yao import Yao
-from src.meihua.bagua import Hexagram
-from src.meihua.core import calculate_hexagram
+from .yao import Yao
+from .bagua import Hexagram
+from .core import calculate_hexagram
 
 class DivinationMethods:
     """梅花易数的取卦方法集合"""

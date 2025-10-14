@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  meihua-api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./divination_results:/app/divination_results
+      - ./logs:/app/logs
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_DEBUG=False
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - meihua-api
+    restart: unless-stopped
+
+volumes:
+  divination_data:
+  logs_data:
